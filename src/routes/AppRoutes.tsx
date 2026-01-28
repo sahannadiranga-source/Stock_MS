@@ -4,6 +4,7 @@ import Dashboard from "../pages/Dashboard";
 import ProductsList from "../pages/Products/ProductsList";
 import Login from "../pages/Login";
 import RequireAuth from "../auth/RequireAuth";
+import DailySheet from "../pages/DailySheet";
 
 export default function AppRoutes() {
   return (
@@ -21,6 +22,8 @@ export default function AppRoutes() {
         >
           <Route index element={<Dashboard />} />
           <Route path="products" element={<ProductsList />} />
+          <Route path="daily-sheet" element={<DailySheet />} />
+
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -24,6 +24,14 @@ export default function Sidebar() {
         </NavLink>
 
         <NavLink
+        to="/daily-sheet"
+        className={({ isActive }) => `${base} ${isActive ? active : idle}`}
+        >
+        <span className="w-2 h-2 rounded-full bg-yellow-400" />
+        Daily Sheet
+        </NavLink>
+
+        <NavLink
           to="/products"
           className={({ isActive }) => `${base} ${isActive ? active : idle}`}
         >
@@ -31,20 +39,10 @@ export default function Sidebar() {
           Products
         </NavLink>
 
-        <div className="mt-4 px-3 text-xs text-gray-400 uppercase tracking-wider">
-          Coming soon
-        </div>
 
-        <div className="px-3 py-2 text-sm text-gray-500">Stock</div>
-        <div className="px-3 py-2 text-sm text-gray-500">Sales (POS)</div>
-        <div className="px-3 py-2 text-sm text-gray-500">Reports</div>
       </nav>
 
-      <div className="mt-auto p-3 border-t border-white/10">
-        <div className="text-xs text-gray-400">
-          v0.1 • React + .NET + PostgreSQL
-        </div>
-      </div>
+
     </aside>
   );
 }

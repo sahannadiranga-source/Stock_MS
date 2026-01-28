@@ -1,18 +1,12 @@
 import { useMemo, useState } from "react";
 import ProductForm from "./ProductForm";
 import type { ProductFormValues } from "./ProductForm";
-
-type Product = ProductFormValues & { id: number };
-
-const initialProducts: Product[] = [
-  { id: 1, name: "Arrack", category: "Liquor", baseUnit: "ml" },
-  { id: 2, name: "Heineken", category: "Beer", baseUnit: "pcs" },
-];
+import { useProducts } from "../../contexts/ProductsContext";
 
 export default function ProductsList() {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   const [showForm, setShowForm] = useState(false);
-  const [editing, setEditing] = useState<Product | null>(null);
+  const [editing, setEditing] = useState<{ id: string; data: ProductFormValues } | null>(null);
   const [q, setQ] = useState("");
 
   const filtered = useMemo(() => {
@@ -26,22 +20,25 @@ export default function ProductsList() {
     setShowForm(true);
   };
 
-  const startEdit = (p: Product) => {
-    setEditing(p);
+  const startEdit = (p: typeof products[0]) => {
+    setEditing({ id: p.id, data: p });
     setShowForm(true);
   };
 
   const save = (values: ProductFormValues) => {
     if (editing) {
-      setProducts((prev) =>
-        prev.map((p) => (p.id === editing.id ? { ...p, ...values } : p))
-      );
+      updateProduct(editing.id, values);
     } else {
-      const nextId = products.length ? Math.max(...products.map((p) => p.id)) + 1 : 1;
-      setProducts((prev) => [...prev, { id: nextId, ...values }]);
+      addProduct(values);
     }
     setShowForm(false);
     setEditing(null);
+  };
+
+  const handleDelete = (id: string, name: string) => {
+    if (confirm(`Delete "${name}"?`)) {
+      deleteProduct(id);
+    }
   };
 
   return (
@@ -50,7 +47,7 @@ export default function ProductsList() {
         <div>
           <div className="text-xl font-semibold text-gray-900">Products</div>
           <div className="text-sm text-gray-600">
-            Manage your liquor, beer, bites, soft drinks and cigarettes.
+            Manage your inventory: Drinks, Cigarettes, and Food items
           </div>
         </div>
 
@@ -65,14 +62,14 @@ export default function ProductsList() {
             onClick={startAdd}
             className="px-4 py-2.5 rounded-xl bg-gray-900 text-white hover:bg-black transition"
           >
-            + Add
+            + Add Product
           </button>
         </div>
       </div>
 
       {showForm && (
         <ProductForm
-          initial={editing ?? undefined}
+          initial={editing?.data}
           onSubmit={save}
           onCancel={() => {
             setShowForm(false);
@@ -87,32 +84,87 @@ export default function ProductsList() {
             <tr>
               <th className="text-left p-3">Name</th>
               <th className="text-left p-3">Category</th>
-              <th className="text-left p-3">Base Unit</th>
-              <th className="text-left p-3 w-28">Action</th>
+              <th className="text-right p-3">Details</th>
+              <th className="text-right p-3">Pricing</th>
+              <th className="text-center p-3 w-32">Actions</th>
             </tr>
           </thead>
 
           <tbody>
             {filtered.map((p) => (
               <tr key={p.id} className="border-t hover:bg-gray-50 transition">
-                <td className="p-3 font-medium text-gray-900">{p.name}</td>
-                <td className="p-3 text-gray-700">{p.category}</td>
-                <td className="p-3 text-gray-700">{p.baseUnit}</td>
                 <td className="p-3">
-                  <button
-                    className="px-3 py-1.5 rounded-lg border bg-white hover:bg-gray-50 transition"
-                    onClick={() => startEdit(p)}
-                  >
-                    Edit
-                  </button>
+                  <div className="flex items-center gap-3">
+                    {p.imageUrl && (
+                      <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden border shrink-0">
+                        <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div className="font-medium text-gray-900">{p.name}</div>
+                  </div>
+                </td>
+                <td className="p-3 text-gray-700">{p.category}</td>
+                <td className="p-3 text-right text-gray-700">
+                  {p.bottleSize && p.initialBottles && (
+                    <div>
+                      <div>{p.initialBottles} bottles × {p.bottleSize}ml</div>
+                      <div className="text-xs text-gray-500">
+                        = {((p.initialBottles * p.bottleSize) / 1000).toFixed(2)}L
+                      </div>
+                    </div>
+                  )}
+                  {p.cigarettesPerPack && p.initialPacks && (
+                    <div>
+                      <div>{p.initialPacks} packs</div>
+                      <div className="text-xs text-gray-500">
+                        {p.cigarettesPerPack} cigarettes/pack
+                      </div>
+                    </div>
+                  )}
+                  {p.category === "Food" && <div className="text-gray-500">—</div>}
+                </td>
+                <td className="p-3 text-right text-gray-700">
+                  <div className="space-y-1">
+                    {p.pricePerBottle && (
+                      <div className="text-xs">{new Intl.NumberFormat("en-LK", { style: "currency", currency: "LKR" }).format(p.pricePerBottle)}/bottle</div>
+                    )}
+                    {p.pricePer100ml && (
+                      <div className="text-xs">{new Intl.NumberFormat("en-LK", { style: "currency", currency: "LKR" }).format(p.pricePer100ml)}/100ml</div>
+                    )}
+                    {p.pricePerPack && (
+                      <div className="text-xs">{new Intl.NumberFormat("en-LK", { style: "currency", currency: "LKR" }).format(p.pricePerPack)}/pack</div>
+                    )}
+                    {p.pricePerCigarette && (
+                      <div className="text-xs">{new Intl.NumberFormat("en-LK", { style: "currency", currency: "LKR" }).format(p.pricePerCigarette)}/cig</div>
+                    )}
+                    {p.pricePerItem && (
+                      <div className="text-xs">{new Intl.NumberFormat("en-LK", { style: "currency", currency: "LKR" }).format(p.pricePerItem)}/item</div>
+                    )}
+                  </div>
+                </td>
+                <td className="p-3 text-center">
+                  <div className="flex gap-2 justify-center">
+                    <button
+                      className="px-3 py-1.5 rounded-lg border bg-white hover:bg-gray-50 transition text-sm"
+                      onClick={() => startEdit(p)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="px-3 py-1.5 rounded-lg border border-red-300 bg-white hover:bg-red-50 transition text-sm text-red-600"
+                      onClick={() => handleDelete(p.id, p.name)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
 
             {filtered.length === 0 && (
               <tr>
-                <td className="p-5 text-gray-500" colSpan={4}>
-                  No products found.
+                <td className="p-8 text-center text-gray-500" colSpan={5}>
+                  No products found. Click "+ Add Product" to get started.
                 </td>
               </tr>
             )}
