@@ -69,6 +69,7 @@ export default function ProductForm({
 
   const showDrinkFields = isDrink(category);
   const showCigaretteFields = category === "Cigarette";
+  const showSoftDrinkFields = category === "Soft Drinks";
   const showFoodFields = category === "Food";
 
   const totalML = bottleSize && initialBottles ? bottleSize * initialBottles : 0;
@@ -115,6 +116,7 @@ export default function ProductForm({
               <option value="Wine">Wine</option>
             </optgroup>
             <optgroup label="Other">
+              <option value="Soft Drinks">Soft Drinks</option>
               <option value="Cigarette">Cigarette</option>
               <option value="Food">Food</option>
             </optgroup>
@@ -243,6 +245,44 @@ export default function ProductForm({
                 {...register("pricePerCigarette", { valueAsNumber: true, min: 0 })}
               />
               <p className="text-xs text-gray-500 mt-1">For selling loose cigarettes</p>
+            </div>
+          </>
+        )}
+
+        {/* SOFT DRINKS FIELDS */}
+        {showSoftDrinkFields && (
+          <>
+            <div>
+              <label className="text-sm font-medium text-gray-700">Initial Stock (Bottles) *</label>
+              <input
+                type="number"
+                className="w-full mt-1 border rounded-xl p-3 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gray-900/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                placeholder="100"
+                {...register("initialBottles", { 
+                  required: "Initial stock is required",
+                  valueAsNumber: true,
+                  min: 0
+                })}
+              />
+              <FieldError msg={errors.initialBottles?.message} />
+              <p className="text-xs text-gray-500 mt-1">Number of bottles in stock</p>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700">Price per Bottle (LKR) *</label>
+              <input
+                type="number"
+                step="0.01"
+                className="w-full mt-1 border rounded-xl p-3 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gray-900/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                placeholder="150"
+                {...register("pricePerBottle", { 
+                  required: "Price is required",
+                  valueAsNumber: true,
+                  min: 0
+                })}
+              />
+              <FieldError msg={errors.pricePerBottle?.message} />
+              <p className="text-xs text-gray-500 mt-1">Price per bottle</p>
             </div>
           </>
         )}

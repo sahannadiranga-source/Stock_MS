@@ -8,7 +8,8 @@ export type Category =
   | "Brandy" 
   | "Beer" 
   | "Wine"
-  | "Cigarette" 
+  | "Cigarette"
+  | "Soft Drinks"
   | "Food";
 
 export type Product = {

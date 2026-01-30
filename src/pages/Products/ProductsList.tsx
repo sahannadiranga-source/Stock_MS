@@ -84,7 +84,6 @@ export default function ProductsList() {
             <tr>
               <th className="text-left p-3">Name</th>
               <th className="text-left p-3">Category</th>
-              <th className="text-right p-3">Details</th>
               <th className="text-right p-3">Pricing</th>
               <th className="text-center p-3 w-32">Actions</th>
             </tr>
@@ -104,25 +103,6 @@ export default function ProductsList() {
                   </div>
                 </td>
                 <td className="p-3 text-gray-700">{p.category}</td>
-                <td className="p-3 text-right text-gray-700">
-                  {p.bottleSize && p.initialBottles && (
-                    <div>
-                      <div>{p.initialBottles} bottles × {p.bottleSize}ml</div>
-                      <div className="text-xs text-gray-500">
-                        = {((p.initialBottles * p.bottleSize) / 1000).toFixed(2)}L
-                      </div>
-                    </div>
-                  )}
-                  {p.cigarettesPerPack && p.initialPacks && (
-                    <div>
-                      <div>{p.initialPacks} packs</div>
-                      <div className="text-xs text-gray-500">
-                        {p.cigarettesPerPack} cigarettes/pack
-                      </div>
-                    </div>
-                  )}
-                  {p.category === "Food" && <div className="text-gray-500">—</div>}
-                </td>
                 <td className="p-3 text-right text-gray-700">
                   <div className="space-y-1">
                     {p.pricePerBottle && (
@@ -163,7 +143,7 @@ export default function ProductsList() {
 
             {filtered.length === 0 && (
               <tr>
-                <td className="p-8 text-center text-gray-500" colSpan={5}>
+                <td className="p-8 text-center text-gray-500" colSpan={4}>
                   No products found. Click "+ Add Product" to get started.
                 </td>
               </tr>
